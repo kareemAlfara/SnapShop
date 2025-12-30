@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">shop__app</string>
+
+    <!-- Replace with your actual Facebook App info -->
+    <string name="facebook_app_id">1955439278637876</string>
+    <string name="facebook_client_token">3bdcf56546c160eb0a904dbd0fa7c32d</string>
+    <string name="fb_login_protocol_scheme">fb1955439278637876</string>
+</resources>
