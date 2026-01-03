@@ -17,7 +17,7 @@ class ImageUploaded extends ProfileState {}
 class ProfileUpdating extends ProfileState {}
 
 class ProfileUpdateSuccess extends ProfileState {
-  final userentity user;
+  final UserEntity user;
   ProfileUpdateSuccess({required this.user});
 }
 

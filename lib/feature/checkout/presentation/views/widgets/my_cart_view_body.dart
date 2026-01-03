@@ -47,7 +47,9 @@ class MyCartViewBody extends StatelessWidget {
                     create: (context) => PaymentCubit(
                       StripeUseCase(   RepositoryImpl()),
                     ),
-                    child: const PaymentMethodsBottomSheet(),
+                    child: const PaymentMethodsBottomSheet(
+                      amount: '50.97',
+                    ),
                   );
                 },
               );

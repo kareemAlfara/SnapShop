@@ -7,16 +7,17 @@ import 'package:shop_app/feature/mainview/presentation/cubit/product_cubit/produ
 import 'package:shop_app/feature/mainview/presentation/pages/productDetilesScreen.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/review_list_page.dart'; // ⭐ Add this import
 import 'package:shop_app/feature/mainview/presentation/widgets/favoriteIcon.dart';
-import 'package:shop_app/feature/mainview/presentation/widgets/rating_badge_widget.dart';
-
 class productWidget extends StatelessWidget {
   const productWidget({super.key, required this.entity});
   final ProductEntity entity;
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return Container(
-      padding: EdgeInsets.all(4),
+      
+       padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
             ? Colors.black12
@@ -38,7 +39,7 @@ class productWidget extends StatelessWidget {
           
           // ⭐ Product Image with Rating Badge
           SizedBox(
-            width: 150,
+            width: size.width*4,
             height: 140,
             child: Stack(
               children: [
@@ -49,7 +50,7 @@ class productWidget extends StatelessWidget {
                   ),
                   child: Image.network(
                     entity.image,
-                    width: 150,
+                     width: size.width*4,
                     height: 140,
                     errorBuilder: (context, error, stackTrace) {
                       return Image.network(
@@ -123,7 +124,7 @@ class productWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Container(
-                width: 110,
+                width: 100,
                 child: defulttext(
                   maxLines: 2,
                   context: context,
@@ -136,19 +137,19 @@ class productWidget extends StatelessWidget {
                 alignment: Alignment.topRight,
                 child: favoriteiconWidget(product_id: entity.id),
               ),
-              SizedBox(width: 5),
+              // SizedBox(width: 5),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               SizedBox(
-                width: 100,
+                width: 95,
                 child: defulttext(
                   context: context,
                   data: "\$ ${entity.price.toString()}",
                   color: Colors.blue,
-                  fSize: 17,
+                  fSize: 15,
                   fw: FontWeight.w600,
                 ),
               ),

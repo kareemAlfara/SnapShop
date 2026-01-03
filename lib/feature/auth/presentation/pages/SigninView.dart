@@ -4,8 +4,8 @@ import 'package:shop_app/feature/auth/presentation/widgets/SigninBody.dart';
 
 
 class SigninView extends StatelessWidget {
-  const SigninView({super.key});
-
+  const SigninView({super.key, required this.isHuawei});
+final bool isHuawei ;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,7 +16,9 @@ class SigninView extends StatelessWidget {
         isShowActions: false,
         automaticallyImplyLeading: false,
       ),
-      body: SigninBodyWidget(),
+      body: SignInPage(
+        isHuawei: isHuawei,
+      ),
     );
   }
 }

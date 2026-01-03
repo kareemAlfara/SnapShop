@@ -10,7 +10,7 @@ import 'package:shop_app/core/di/injection.dart'; // Your DI file
 class UpdateProfile extends StatelessWidget {
   const UpdateProfile({super.key, required this.user});
   
-  final userentity user;
+  final UserEntity user;
 
   @override
   Widget build(BuildContext context) {
@@ -192,7 +192,7 @@ class UpdateProfile extends StatelessWidget {
     BuildContext context,
     ProfileCubit cubit,
     ProfileState state,
-    userentity user,
+    UserEntity user,
     Color Primarycolor
   ) {
     return Stack(
@@ -204,7 +204,7 @@ class UpdateProfile extends StatelessWidget {
           backgroundImage: _getImageProvider(cubit, user),
           child: (cubit.imageFile == null &&
                   cubit.currentImageUrl == null &&
-                  (user.image?.isEmpty ?? true))
+                  (user.image.isEmpty ?? true))
               ? Icon(Icons.person, size: 70, color: Colors.grey[600])
               : null,
         ),
@@ -235,7 +235,7 @@ class UpdateProfile extends StatelessWidget {
     );
   }
 
-  ImageProvider? _getImageProvider(ProfileCubit cubit, userentity user) {
+  ImageProvider? _getImageProvider(ProfileCubit cubit, UserEntity user) {
     if (cubit.imageFile != null) {
       return FileImage(cubit.imageFile!);
     } else if (cubit.currentImageUrl != null &&

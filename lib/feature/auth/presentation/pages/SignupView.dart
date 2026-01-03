@@ -12,7 +12,7 @@ class Signupview extends StatelessWidget {
         title: "Sign Up",
         isShowActions: false,
       ),
-      body: SignupbodyWidget(),
+      body: SignUpPage(),
     );
   }
 }

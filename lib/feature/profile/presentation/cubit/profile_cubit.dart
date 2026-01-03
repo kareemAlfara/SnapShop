@@ -31,7 +31,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   String? currentUserId;
 
   /// Load user data
-  Future<void> loadUserData({required userentity user}) async {
+  Future<void> loadUserData({required UserEntity user}) async {
     emit(ProfileLoading());
 
     try {

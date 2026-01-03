@@ -1,151 +1,96 @@
-// import 'package:flutter/material.dart';
-// import 'package:shop_app/core/utils/components.dart';
-// import 'package:shop_app/core/utils/custom_button.dart';
-// import 'package:shop_app/feature/auth/data/auth_remote_data_source.dart';
-
-// class NotificationView extends StatefulWidget {
-//   const NotificationView({super.key});
-
-//   @override
-//   State<NotificationView> createState() => _NotificationViewState();
-// }
-
-// class _NotificationViewState extends State<NotificationView> {
-//   final TextEditingController notificationTitleController =
-//       TextEditingController();
-//   final TextEditingController notificationBodyController =
-//       TextEditingController();
-//   final TextEditingController userIdController = TextEditingController();
-
-//   bool isPrivate = false;
-
-//   @override
-//   void dispose() {
-//     notificationTitleController.dispose();
-//     notificationBodyController.dispose();
-//     userIdController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text("Notifications"),
-//         centerTitle: true,
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             Row(
-//               children: [
-//                 Switch(
-//                     value: isPrivate,
-//                     onChanged: (val) {
-//                       setState(() {
-//                         isPrivate = val;
-//                       });
-//                     }),
-//                 const Text("Send private notification"),
-//               ],
-//             ),
-//             if (isPrivate)
-//               TextField(
-//                 controller: userIdController,
-//                 decoration: const InputDecoration(
-//                   labelText: "User ID",
-//                 ),
-//               ),
-//             TextField(
-//               controller: notificationTitleController,
-//               decoration: const InputDecoration(
-//                 labelText: "Notification Title",
-//               ),
-//             ),
-//             TextField(
-//               controller: notificationBodyController,
-//               decoration: const InputDecoration(
-//                 labelText: "Notification Body",
-//               ),
-//             ),
-//             const SizedBox(height: 20),
-//             CustomButton(
-//               text: isPrivate ? "Send Private" : "Send Global",
-//               onPressed: () async {
-//                 final title = notificationTitleController.text.trim();
-//                 final body = notificationBodyController.text.trim();
-//                 final receiverId =
-//                     isPrivate ? userIdController.text.trim() : null;
-
-//                 if (title.isEmpty || body.isEmpty) return;
-
-//                 await AuthRemoteDataSource().sendOneSignalNotification(
-//                   title: title,
-//                   body: body,
-//                   receiverId: receiverId,
-//                 );
-
-//                 notificationTitleController.clear();
-//                 notificationBodyController.clear();
-//                 userIdController.clear();
-//               },
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:shop_app/core/di/injection.dart';
 import 'package:shop_app/core/utils/components.dart';
-import 'package:shop_app/core/utils/custom_button.dart';
+import 'package:shop_app/feature/admin/presentation/view/AdminOrderManagementPage.dart';
 import 'package:shop_app/feature/auth/data/auth_remote_data_source.dart';
 
-class NotificationView extends StatefulWidget {
-  const NotificationView({super.key});
+class AdminNotificationPanel extends StatefulWidget {
+  const AdminNotificationPanel({Key? key}) : super(key: key);
 
   @override
-  State<NotificationView> createState() => _NotificationViewState();
+  State<AdminNotificationPanel> createState() => _AdminNotificationPanelState();
 }
 
-class _NotificationViewState extends State<NotificationView> {
-  var notificationTitleController = TextEditingController();
-  var notificationBodyController = TextEditingController();
-  var userIdcontroller = TextEditingController();
-  final List<List<Color>> bgColors = [
-    [Colors.pink.shade500, Colors.orange.shade300],
-  ];
-  bool isUserNOTIFICATION = false;
-  @override
+class _AdminNotificationPanelState extends State<AdminNotificationPanel> {
+  late final AuthRemoteDataSource authDataSource;
+  final _titleController = TextEditingController();
+  final _bodyController = TextEditingController();
+  final _userIdController = TextEditingController();
+
+  bool _isPrivate = false;
+  bool _isSending = false;
+ @override
   void initState() {
     super.initState();
+    // ✅ هنا نعمل initialize للـ authDataSource
+    authDataSource = getIt<AuthRemoteDataSource>();
   }
 
+  @override
   void dispose() {
-    notificationTitleController.dispose();
-    notificationBodyController.dispose();
-    userIdcontroller.dispose();
-
+    _titleController.dispose();
+    _bodyController.dispose();
+    _userIdController.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendNotification() async {
+    final title = _titleController.text.trim();
+    final body = _bodyController.text.trim();
+    final userId = _userIdController.text.trim();
+
+    if (title.isEmpty || body.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ العنوان والرسالة مطلوبان")),
+      );
+      return;
+    }
+
+    if (_isPrivate && userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ أدخل User ID للإشعار الخاص")),
+      );
+      return;
+    }
+
+    setState(() => _isSending = true);
+
+    try {
+      if (_isPrivate) {
+        await authDataSource.notifyUser(userId, title, body);
+      } else {
+        await authDataSource.notifyAllUsers(title, body);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("✅ تم إرسال الإشعار بنجاح"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Clear fields
+      _titleController.clear();
+      _bodyController.clear();
+      _userIdController.clear();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("❌ خطأ: $e")));
+    } finally {
+      setState(() => _isSending = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<List<Color>> bgColors = [
+      [Colors.pink.shade500, Colors.orange.shade300],
+    ];
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-        ),
         backgroundColor: Colors.pink.shade500,
-        title: Text("Notifications", style: TextStyle(color: Colors.white)),
+        title: const Text("Admin - Send Notifications"),
         centerTitle: true,
       ),
       body: Container(
@@ -158,151 +103,143 @@ class _NotificationViewState extends State<NotificationView> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Switch(
-                        value: isUserNOTIFICATION,
-                        onChanged: (value) {
-                          setState(() {
-                            isUserNOTIFICATION = !isUserNOTIFICATION;
-                          });
-                          // cubit.changesaveAddress(value);
-                        },
-                      ),
-                      SizedBox(width: 11),
-                      defulttext(
-                        context: context,
-                        data: " Send private Notification",
-                        // color: Colors.grey,
-                        fSize: 18,
-                        fw: FontWeight.w600,
-                      ),
-                    ],
-                  ),
-                ),
-            
-                SizedBox(height: 28),
-                Visibility(
-                  visible: isUserNOTIFICATION,
-                  child: defulitTextFormField(
-                    context: context,
-                    controller: userIdcontroller,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "please inter the user id";
-                      }
-                      return null;
-                    },
-                    title: " user id",
-                    textInputAction: TextInputAction.next,
-                  ),
-                ),
-                SizedBox(height: 28),
-                defulitTextFormField(
-                  context: context,
-                  controller: notificationTitleController,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "please inter the notification Title";
-                    }
-                    return null;
-                  },
-                  title: " Notification Title",
-                  textInputAction: TextInputAction.next,
-                ),
-                SizedBox(height: 28),
-                defulitTextFormField(
-                  context: context,
-                  controller: notificationBodyController,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return "please inter the notification body";
-                    }
-                    return null;
-                  },
-                  title: " notification body",
-                  textInputAction: TextInputAction.next,
-                ),
-                 Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.notifications_active, size: 100, color: Colors.blue),
-                const SizedBox(height: 20),
-                const Text(
-                  "OneSignal Test App",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-              onPressed: () async {
-               await AuthRemoteDataSource().notifyUser(
-                  userIdcontroller.text,
-                  notificationTitleController.text,
-                  notificationBodyController.text,
-                );
-                
-              },
-              child: Text("Send Private"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                AuthRemoteDataSource().notifyAllUsers(
-              notificationTitleController.text,
-              notificationBodyController.text,
-            );
-            
-                
-              },
-              child: Text("Send Global"),
-            ),
-                ElevatedButton(
-                  onPressed: () async {
-                    // Print current subscription info
-                    final subId = OneSignal.User.pushSubscription.id;
-                    final token = OneSignal.User.pushSubscription.token;
-                    print("Current Subscription ID: $subId");
-                    print("Current Token: $token");
-                  },
-                  child: const Text("Check Subscription"),
-                ),
-              ],
-            ),
+                // Switch: Private or Global
+                Row(
+                  children: [
+                    Switch(
+                      value: _isPrivate,
+                      onChanged: (value) {
+                        setState(() => _isPrivate = value);
+                      },
                     ),
-                Padding(
-                  padding: const EdgeInsets.all(28.0),
-                  child: CustomButton(
-                    onPressed: () async {
-                      // final receiverId =
-                      //     "296f410b-c14c-44ba-b3c5-292c86d6ead0"; // 👈 not the current user
-                      // isUserNOTIFICATION?
-                      await AuthRemoteDataSource().notifyUser(
-                        userIdcontroller.text,
-                        notificationTitleController.text,
-                        notificationBodyController.text,
-                      );
-                      // :
-                      // await AuthRemoteDataSource().notifyAllUsers(
-                      //   notificationTitleController.text,
-                      //   notificationBodyController.text,
-                      // );
-                      notificationTitleController.clear();
-                      notificationBodyController.clear();
-                      userIdcontroller.clear();
-                    },
-                    text: isUserNOTIFICATION
-                        ? " Send private Notification"
-                        : "send  notification",
-                    fSize: 18,
+                    const SizedBox(width: 10),
+                    Text(
+                      _isPrivate ? "إشعار خاص (Private)" : "إشعار عام (Global)",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // User ID (if private)
+                if (_isPrivate)
+                  TextField(
+                    controller: _userIdController,
+                    decoration: const InputDecoration(
+                      labelText: "User ID",
+                      border: OutlineInputBorder(),
+                      hintText: "أدخل User ID للمستخدم",
+                    ),
                   ),
+
+                if (_isPrivate) const SizedBox(height: 20),
+
+                // Notification Title
+                TextField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    labelText: "Notification Title",
+                    border: OutlineInputBorder(),
+                    hintText: "مثال: 🔥 عرض جديد",
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Notification Body
+                TextField(
+                  controller: _bodyController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: "Notification Body",
+                    border: OutlineInputBorder(),
+                    hintText: "مثال: خصم 50% على كل المنتجات لمدة 24 ساعة",
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // Send Button
+                ElevatedButton(
+                  onPressed: _isSending ? null : _sendNotification,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: _isSending
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          _isPrivate
+                              ? " send Private Notification "
+                              : "send Global Notification",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // Quick Actions
+                const Divider(),
+                const SizedBox(height: 10),
+                const Text(
+                  "Quick Actions:",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    navigat(context, widget: AdminOrderManagementPage());
+                  },
+
+                  label: const Text("OrderManagement"),
+                ),
+                const SizedBox(height: 10),
+
+                // Flash Sale Button
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await authDataSource.notifyAllUsers(
+                      "🔥 Flash Sale!",
+                      "خصم 50% على كل المنتجات لمدة 24 ساعة فقط!",
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("✅ تم إرسال إشعار Flash Sale"),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.flash_on),
+                  label: const Text("Send Flash Sale"),
+                ),
+
+                // New Product Button
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await authDataSource.notifyAllUsers(
+                      "🆕 منتج جديد!",
+                      "تفقد أحدث المنتجات في التطبيق الآن",
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("✅ تم إرسال إشعار منتج جديد"),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.new_releases),
+                  label: const Text("New Product Arrival"),
                 ),
               ],
             ),

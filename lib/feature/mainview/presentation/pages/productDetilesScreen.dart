@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shop_app/core/utils/app_images.dart';
 import 'package:shop_app/core/utils/components.dart';
 import 'package:shop_app/feature/mainview/data/mapping/mapper.dart';
 import 'package:shop_app/feature/mainview/domain/entities/productEntity.dart';
@@ -8,7 +7,6 @@ import 'package:shop_app/feature/mainview/domain/helper/recent_products_helper.d
 import 'package:shop_app/feature/mainview/presentation/cubit/Cartcubit/cart_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/360.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/favoriteIcon.dart';
-import 'package:svg_flutter/svg.dart';
 
 class Productdetilesscreen extends StatelessWidget {
   const Productdetilesscreen({super.key, required this.productEntity});

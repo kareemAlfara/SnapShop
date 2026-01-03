@@ -14,6 +14,9 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+            // ✅ Huawei repo
+        maven { url = uri("https://developer.huawei.com/repo/") } // ✅ Kotlin DSL
+
     }
 }
 

@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shop_app/core/services/Shared_preferences.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/product_cubit/product_cubit.dart';
 

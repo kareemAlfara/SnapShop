@@ -6,7 +6,7 @@ class GetUserDataUsecase {
 
   GetUserDataUsecase({required this.repository});
 
-  Future<userentity> execute(String userId) async {
+  Future<UserEntity> execute(String userId) async {
     return await repository.getUserData(userId);
   }
 }

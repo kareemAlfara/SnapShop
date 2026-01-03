@@ -21,7 +21,7 @@ class ProfileRepoImpl implements ProfileRepo {
   }
 
   @override
-  Future<userentity> updateProfile({
+  Future<UserEntity> updateProfile({
     required String userId,
     required String name,
     required String email,
@@ -36,12 +36,12 @@ class ProfileRepoImpl implements ProfileRepo {
       imageUrl: imageUrl,
     );
     
-    return Mapper.toentity(model);
+    return Mapper.toEntity(model);
   }
 
   @override
-  Future<userentity> getUserData(String userId) async {
+  Future<UserEntity> getUserData(String userId) async {
     final model = await remoteDataSource.getUserData(userId);
-    return Mapper.toentity(model);
+    return Mapper.toEntity(model);
   }
 }

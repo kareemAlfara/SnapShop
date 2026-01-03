@@ -1,15 +1,10 @@
-import 'package:card_swiper/card_swiper.dart';
-import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shop_app/core/utils/app_images.dart';
 import 'package:shop_app/core/utils/components.dart';
 import 'package:shop_app/feature/mainview/domain/entities/productEntity.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/Cartcubit/cart_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/productDetilesScreen.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/favoriteIcon.dart';
-import 'package:svg_flutter/svg.dart';
 
 class latestArrivalWidget extends StatelessWidget {
   const latestArrivalWidget({super.key, required this.model});

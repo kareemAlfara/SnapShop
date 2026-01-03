@@ -1,138 +1,164 @@
+// ========================================
+// 📁 lib/core/services/Supabase_auth_service.dart
+// ========================================
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shop_app/core/errors/authFaulier.dart';
-import 'package:shop_app/feature/auth/data/models/userModel.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseAuthService {
+  final supabase = Supabase.instance.client;
+
+  // ========================================
+  // ✅ SIGNUP
+  // ========================================
   Future<User?> Signup({
     required String email,
     required String password,
   }) async {
     try {
-      SupabaseClient supabase = Supabase.instance.client;
       final response = await supabase.auth.signUp(
         email: email,
         password: password,
       );
 
-      return response.user!;
+      if (response.user == null) {
+        throw AuthException('Signup failed: No user returned');
+      }
+
+      return response.user;
     } on AuthException catch (e) {
       final message = handleAuthError(e);
       Fluttertoast.showToast(msg: message, backgroundColor: Colors.red);
-      return null;
+      throw e;
     } catch (e) {
-      // TODO
-      log(
-        "Exception in FirebaseAuthService.createUserWithEmailAndPassword: ${e.toString()}",
+      log("Exception in Signup: ${e.toString()}");
+      throw Exception('Signup failed: $e');
+    }
+  }
+
+  // ========================================
+  // ✅ SIGNIN
+  // ========================================
+  Future<User?> Signin({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
       );
-      return null;
+
+      if (response.user == null) {
+        throw AuthException('Sign in failed: No user returned');
+      }
+
+      return response.user;
+    } on AuthException catch (e) {
+      final message = handleAuthError(e);
+      Fluttertoast.showToast(msg: message, backgroundColor: Colors.red);
+      throw e;
+    } catch (e) {
+      log("Exception in Signin: ${e.toString()}");
+      throw Exception('Sign in failed: $e');
     }
   }
-Future<User?> Signin({
-  required String email,
-  required String password,
-}) async {
-  try {
-    SupabaseClient supabase = Supabase.instance.client;
-    final response = await supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
-    
-    // ✅ تحقق من response
-    if (response.user == null) {
-      throw AuthException('Sign in failed: No user returned');
-    }
-    
-    return response.user;
-  } on AuthException catch (e) {
-    final message = handleAuthError(e);
-    Fluttertoast.showToast(msg: message, backgroundColor: Colors.red);
-    throw e; // ✅ throw بدل return null
-  } catch (e) {
-    log("Exception in Signin: ${e.toString()}");
-    throw Exception('Sign in failed: $e'); // ✅ throw
-  }
-}
-  // Future<User?> Signin({
-  //   required String email,
-  //   required String password,
-  // }) async {
-  //   try {
-  //     SupabaseClient supabase = Supabase.instance.client;
-  //     final response = await Supabase.instance.client.auth.signInWithPassword(
-  //       email: email,
-  //       password: password,
-  //     );
 
-  //     return response.user!;
-  //   } on AuthException catch (e) {
-  //     final message = handleAuthError(e);
-  //     Fluttertoast.showToast(msg: message, backgroundColor: Colors.red);
-  //     return null;
-  //   } catch (e) {
-  //     // TODO
-  //     log(
-  //       "Exception in FirebaseAuthService.createUserWithEmailAndPassword: ${e.toString()}",
-  //     );
-  //     return null;
-  //   }
-  // }
-
+  // ========================================
+  // ✅ GOOGLE SIGN IN
+  // ========================================
   final GoogleSignIn googleSignIn = GoogleSignIn(
     serverClientId:
         '1038966682534-8f6kpcl2hfkp9o0p3lkb7v86deblaaj8.apps.googleusercontent.com',
     scopes: ['email', 'profile'],
   );
-  Future<User> googleSigninuser() async {
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) throw Exception('Google sign-in cancelled');
 
-    final googleAuth = await googleUser.authentication;
-    if (googleAuth.idToken == null) throw Exception('No ID Token from Google');
-    final AuthResponse response = await Supabase.instance.client.auth
-        .signInWithIdToken(
-          provider: OAuthProvider.google,
-          idToken: googleAuth.idToken!,
-          accessToken: googleAuth.accessToken,
-        );
-    final user = response.user!;
-    return user;
+  Future<User> googleSigninuser() async {
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        throw Exception('Google sign-in cancelled');
+      }
+
+      final googleAuth = await googleUser.authentication;
+      
+      if (googleAuth.idToken == null) {
+        throw Exception('No ID Token from Google');
+      }
+
+      final AuthResponse response = await supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: googleAuth.idToken!,
+        accessToken: googleAuth.accessToken,
+      );
+
+      if (response.user == null) {
+        throw Exception('Google sign-in failed: No user returned');
+      }
+
+      return response.user!;
+    } catch (e, stack) {
+      log('❌ Google Sign-In Error: $e');
+      log(stack.toString());
+      rethrow;
+    }
   }
 
+  // ========================================
+  // ✅ FACEBOOK SIGN IN
+  // ========================================
   Future<User> facebookuser() async {
-    await Supabase.instance.client.auth.signInWithOAuth(
-      OAuthProvider.facebook,
-      redirectTo: 'https://kbshmetpchppzivoynly.supabase.co/auth/v1/callback',
-    );
+    try {
+      await supabase.auth.signInWithOAuth(
+        OAuthProvider.facebook,
+        redirectTo: 'https://kbshmetpchppzivoynly.supabase.co/auth/v1/callback',
+      );
+
       User? user;
 
-    // Wait and check for session multiple times
-    for (int i = 0; i < 30; i++) {
-      await Future.delayed(Duration(milliseconds: 500));
+      // Wait and check for session multiple times
+      for (int i = 0; i < 30; i++) {
+        await Future.delayed(const Duration(milliseconds: 500));
 
-      final session = Supabase.instance.client.auth.currentSession;
-      if (session != null && session.user != null) {
-        user = session.user;
-        final userEntity = Usermodel(
-          id: user.id,
-
-          email: user.email ?? '',
-image: "",
-          name:
-              user.userMetadata?['full_name'] ??
-              user.userMetadata?['name'] ??
-              user.email?.split('@')[0] ??
-              'Facebook User',
-          phone: user.userMetadata?['phone'] ?? '',
-        );
+        final session = supabase.auth.currentSession;
+        if (session != null) {
+          user = session.user;
+          break;
+        }
       }
-    }
-        return user!;
 
+      if (user == null) {
+        throw Exception('Facebook sign-in failed: No user session found');
+      }
+
+      return user;
+    } catch (e, stack) {
+      log('❌ Facebook Sign-In Error: $e');
+      log(stack.toString());
+      rethrow;
+    }
+  }
+
+  // ========================================
+  // ✅ SIGN OUT
+  // ========================================
+  Future<void> signOut() async {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      log('❌ Sign out error: $e');
+      rethrow;
+    }
+  }
+
+  // ========================================
+  // ✅ GET CURRENT USER
+  // ========================================
+  User? getCurrentUser() {
+    return supabase.auth.currentUser;
   }
 }

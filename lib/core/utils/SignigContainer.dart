@@ -31,8 +31,8 @@ final String text;
             defulttext(
               context: context,
               data:text,
-              fSize: 16,
-              color: Colors.black,
+              fSize: 14,
+              // color: Colors.black,
               fw: FontWeight.w600,
             ),
           ],

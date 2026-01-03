@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shop_app/core/utils/app_images.dart';
 import 'package:shop_app/core/utils/components.dart';
 import 'package:shop_app/core/utils/custom_button.dart';
+import 'package:shop_app/core/utils/dialogmethod.dart';
 import 'package:shop_app/feature/checkout/presentation/views/checkout.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/Cartcubit/cart_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/cartBody.dart';
@@ -22,9 +23,14 @@ class Cartview extends StatelessWidget {
 
         return Scaffold(
           appBar: defaultAppBar(
+            isNotification: false,
             Actionicon: Assets.assetsImagesTrashSvg,
             ActiononTap: () {
-              cubit.clearCart();
+                dialogmethod.Showdialogfunction(context,
+                                      iserror: true,
+                                      subtilte: "Remve items", fct: () async {
+                                  cubit.clearCart();  ;
+                                  });
             },
             context: context,
             title: "Shoping Basket",

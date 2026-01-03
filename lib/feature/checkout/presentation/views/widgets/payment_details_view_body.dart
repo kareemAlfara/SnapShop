@@ -1,8 +1,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_credit_card/flutter_credit_card.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shop_app/core/widgets/custom_button.dart';
 import 'package:shop_app/feature/checkout/presentation/views/thank_you_view.dart';
 import 'package:shop_app/feature/checkout/presentation/views/widgets/custom_credit_card.dart';

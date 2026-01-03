@@ -1,17 +1,11 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shop_app/core/utils/app_images.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/product_cubit/product_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/Search.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/cartView.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/home.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/profile.dart';
-import 'package:shop_app/feature/mainview/presentation/pages/Wishlist.dart';
 import 'package:shop_app/main.dart';
-import 'package:svg_flutter/svg.dart';
 
 part 'layout_state.dart';
 

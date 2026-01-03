@@ -1,23 +1,32 @@
+// ========================================
+// 📁 lib/feature/auth/domain/repository/repo.dart
+// ========================================
 import 'dart:io';
-
-import 'package:image_picker/image_picker.dart';
+import 'package:dartz/dartz.dart';
+import 'package:shop_app/core/utils/failures.dart';
 import 'package:shop_app/feature/auth/domain/entities/userEntity.dart';
 
 abstract class Repo {
-  Future<userentity> Signup({
+  Future<Either<Failure, UserEntity>> signup({
     required String email,
     required String password,
     required String name,
     required String phone,
-    required String image
+    required String image,
   });
-  Future<userentity> Signin({required String email, required String password});
-  Future<userentity> signinWithGoogle();
-  Future<userentity> signinWithFacebook();
 
-  Future<void> signout();
-  Future<userentity?> getCurrentUserFromPrefs();
-    Future<String?> uploadImageToSupabase(File file);
+  Future<Either<Failure, UserEntity>> signin({
+    required String email,
+    required String password,
+  });
 
+  Future<Either<Failure, UserEntity>> signinWithGoogle();
   
+  Future<Either<Failure, UserEntity>> signinWithFacebook();
+
+  Future<Either<Failure, void>> signout();
+
+  Future<Either<Failure, UserEntity?>> getCurrentUserFromPrefs();
+
+  Future<Either<Failure, String>> uploadImageToSupabase(File file);
 }

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
@@ -24,12 +25,16 @@ class SearchView extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: defaultAppBar(context: context, title: "Store Products"),
+          appBar: defaultAppBar(
+            context: context,
+            title: "Store Products",
+            isShowActions: false,
+          ),
           body: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: [
-                SizedBox(height: 22,),
+                SizedBox(height: 22),
                 // 🔍 مربع البحث
                 TextField(
                   controller: cubit.searchController,

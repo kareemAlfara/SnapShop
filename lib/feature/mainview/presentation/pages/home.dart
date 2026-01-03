@@ -4,17 +4,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shop_app/core/services/Shared_preferences.dart';
 import 'package:shop_app/core/utils/components.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/product_cubit/product_cubit.dart';
+import 'package:shop_app/feature/mainview/presentation/pages/notificationPage.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/allproductlistview.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/categorywraplist.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/leastarrivalList.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-      /// ✅ Trigger once after first frame — safe inside StatelessWidget
+    /// ✅ Trigger once after first frame — safe inside StatelessWidget
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userId = Prefs.getString('id');
       if (userId.isNotEmpty) {
@@ -24,14 +24,25 @@ class HomeView extends StatelessWidget {
 
     return BlocConsumer<ProductCubit, ProductState>(
       listener: (context, state) {
-          
         // TODO: implement listener
       },
       builder: (context, state) {
         var cubit = ProductCubit.get(context);
         return Scaffold(
-          appBar: defaultAppBar(context: context, title: "Store Products"),
-    
+          appBar: defaultAppBar(
+            context: context,
+            title: "Store Products",
+          
+            ActiononTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationsPage(),
+                ),
+              );
+            },
+          ),
+
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

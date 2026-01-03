@@ -2,8 +2,6 @@
 
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shop_app/core/services/Shared_preferences.dart';
 import 'package:shop_app/core/services/get_dummy_product.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/product_cubit/product_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/productwidget.dart';

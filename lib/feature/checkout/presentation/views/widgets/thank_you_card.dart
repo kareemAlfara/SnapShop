@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shop_app/core/utils/styles.dart';
 import 'package:shop_app/feature/checkout/presentation/views/widgets/card_info_widget.dart';

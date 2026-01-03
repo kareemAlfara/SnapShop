@@ -1,11 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
-import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:shop_app/feature/admin/domain/usecases/addproductuseCase.dart';
 import 'package:shop_app/feature/admin/domain/usecases/uploadImageusecase.dart';
 import 'package:shop_app/feature/mainview/domain/entities/productEntity.dart';

@@ -1,6 +1,5 @@
 // notification_model.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shop_app/core/utils/app_colors.dart';
 import 'package:shop_app/core/utils/components.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

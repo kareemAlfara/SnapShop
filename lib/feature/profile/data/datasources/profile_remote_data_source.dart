@@ -28,7 +28,7 @@ class ProfileRemoteDataSource {
   }
 
   /// Update user profile in database
-  Future<Usermodel> updateUserProfile({
+  Future<UserModel> updateUserProfile({
     required String userId,
     required String name,
     required String email,
@@ -55,14 +55,14 @@ class ProfileRemoteDataSource {
           .eq('uid', userId)
           .single();
 
-      return Usermodel.fromJson(userRow);
+      return UserModel.fromJson(userRow);
     } catch (e) {
       throw Exception('Failed to update profile: $e');
     }
   }
 
   /// Get user data from database
-  Future<Usermodel> getUserData(String userId) async {
+  Future<UserModel> getUserData(String userId) async {
     try {
       final userRow = await supabase
           .from('users')
@@ -70,7 +70,7 @@ class ProfileRemoteDataSource {
           .eq('uid', userId)
           .single();
 
-      return Usermodel.fromJson(userRow);
+      return UserModel.fromJson(userRow);
     } catch (e) {
       throw Exception('Failed to get user data: $e');
     }

@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import 'package:shop_app/core/utils/failures.dart';
 import 'package:shop_app/feature/auth/domain/repository/repo.dart';
 
 class Signoutusecase {
@@ -5,7 +7,7 @@ class Signoutusecase {
 
   Signoutusecase(this.repository);
 
-  Future<void> call() async {
+   Future<Either<Failure, void>> call() async {
     return await repository.signout();
   } 
 }

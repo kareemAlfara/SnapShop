@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_paymob_egypt/flutter_paymob_egypt.dart';
 import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:shop_app/core/utils/apiscret.dart';
 import 'package:shop_app/core/widgets/custom_button.dart';
 import 'package:shop_app/feature/checkout/data/models/payment_intent_input_model/payment_intent_input_model.dart';
@@ -14,8 +13,10 @@ import 'package:shop_app/feature/checkout/presentation/views/widgets/payment_met
 
 
 class PaymentMethodsListView extends StatefulWidget {
-  const PaymentMethodsListView({super.key, required this.visible});
+  const PaymentMethodsListView({super.key, required this.visible,  this.onMethodSelected,});
   final bool visible;
+    final Function(int)? onMethodSelected;
+
   @override
   State<PaymentMethodsListView> createState() => _PaymentMethodsListViewState();
 }
@@ -39,7 +40,9 @@ class _PaymentMethodsListViewState extends State<PaymentMethodsListView> {
                   onTap: () {
                     activeIndex = index;
                     setState(() {});
+                     widget.onMethodSelected?.call(index);
                   },
+                  
                   child: PaymentMethodItem(
                     isActive: activeIndex == index,
                     model: paymentMethodsItems[index],
@@ -78,7 +81,7 @@ class _PaymentMethodsListViewState extends State<PaymentMethodsListView> {
               return CustomButton(
                 onTap: () {
                   PaymentIntentInputModel inputModel = PaymentIntentInputModel(
-                    amount: 1000,
+                    amount: 1000.toString(),
                     currency: 'usd',
                     customerId: 'cus_TRpYudNcrMOwVU',
                   );

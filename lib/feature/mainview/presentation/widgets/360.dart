@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/core/utils/components.dart';
 import 'package:shop_app/feature/mainview/domain/entities/productEntity.dart';
-import 'package:shop_app/feature/mainview/presentation/pages/add_review_page.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/review_list_page.dart';
 
 import '../cubit/product_cubit/product_cubit.dart';
@@ -125,7 +124,9 @@ class _ProductView360State extends State<ProductView360>
               onPressed: toggleAutoRotation,
               icon: Icon(isAutoRotating ? Icons.pause : Icons.play_arrow),
               label: Text(isAutoRotating ? 'Pause' : 'Auto Rotate'),
+
               style: ElevatedButton.styleFrom(
+                textStyle: TextStyle(fontSize: 13),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 12,
@@ -179,12 +180,12 @@ class _ProductView360State extends State<ProductView360>
                     widget.product.avgRating.toStringAsFixed(1),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 13,
                     ),
                   ),
                 ],
               ),
-              label: Text("(${widget.product.reviewCount} reviews)"),
+              label: Text("(${widget.product.reviewCount} reviews)",style: const TextStyle(fontSize: 13),),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,

@@ -10,15 +10,20 @@ class OrderModel extends OrderEntity {
     required super.deliveryMethod,
     required super.deliveryTime,
     required super.paymentMethod,
-    super.orderStatus,
-    super.paymentStatus,
+    required super.orderStatus, // ✅ Added required
+  required  super.paymentStatus,
     super.deliveryAddress,
     super.notes,
     super.createdAt,
+    super.deliveryPersonId,
+    super.deliveryPersonName,
+    super.deliveryPersonPhone,
+    super.deliveryPersonEmail,
   });
 
   Map<String, dynamic> toJson() {
     return {
+      if (id != null) 'id': id,
       'user_id': userId,
       'total_amount': totalAmount,
       'delivery_fee': deliveryFee,
@@ -28,28 +33,41 @@ class OrderModel extends OrderEntity {
       'payment_method': paymentMethod,
       'order_status': orderStatus,
       'payment_status': paymentStatus,
-      'delivery_address': deliveryAddress,
-      'notes': notes,
+      if (deliveryAddress != null) 'delivery_address': deliveryAddress,
+      if (notes != null) 'notes': notes,
+      'delivery_person_id': deliveryPersonId,
+      'delivery_person_name': deliveryPersonName,
+      'delivery_person_phone': deliveryPersonPhone,
+      'delivery_person_email': deliveryPersonEmail,
     };
   }
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
+    String userId = '';
+    if (json['user_id'] != null) {
+      userId = json['user_id'].toString();
+    }
+
     return OrderModel(
-      id: json['id'],
-      userId: json['user_id'],
-      totalAmount: json['total_amount'],
-      deliveryFee: json['delivery_fee'] ?? 40,
-      finalAmount: json['final_amount'],
-      deliveryMethod: json['delivery_method'],
-      deliveryTime: json['delivery_time'],
-      paymentMethod: json['payment_method'],
-      orderStatus: json['order_status'] ?? 'pending',
-      paymentStatus: json['payment_status'] ?? 'unpaid',
-      deliveryAddress: json['delivery_address'],
-      notes: json['notes'],
+      id: json['id']?.toString(),
+      userId: userId,
+      totalAmount: (json['total_amount'] ?? 0).toDouble(),
+      deliveryFee: (json['delivery_fee'] ?? 40).toDouble(),
+      finalAmount: (json['final_amount'] ?? 0).toDouble(),
+      deliveryMethod: json['delivery_method']?.toString() ?? 'delivery',
+      deliveryTime: json['delivery_time']?.toString() ?? 'now',
+      paymentMethod: json['payment_method']?.toString() ?? 'cash',
+      orderStatus: json['order_status']?.toString() ?? 'pending',
+      paymentStatus: json['payment_status']?.toString() ?? 'unpaid',
+      deliveryAddress: json['delivery_address']?.toString(),
+      notes: json['notes']?.toString(),
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTime.tryParse(json['created_at'].toString())
           : null,
+  deliveryPersonId: json['delivery_person_id'],
+    deliveryPersonName: json['delivery_person_name'],
+    deliveryPersonPhone: json['delivery_person_phone'],
+    deliveryPersonEmail: json['delivery_person_email'],
     );
   }
 
@@ -68,6 +86,37 @@ class OrderModel extends OrderEntity {
       deliveryAddress: deliveryAddress,
       notes: notes,
       createdAt: createdAt,
+      deliveryPersonId: deliveryPersonId,
+    deliveryPersonName: deliveryPersonName,
+    deliveryPersonPhone: deliveryPersonPhone,
+    deliveryPersonEmail: deliveryPersonEmail,
     );
+  }
+
+  factory OrderModel.fromEntity(OrderEntity entity) {
+    return OrderModel(
+      id: entity.id,
+      userId: entity.userId,
+      totalAmount: entity.totalAmount,
+      deliveryFee: entity.deliveryFee,
+      finalAmount: entity.finalAmount,
+      deliveryMethod: entity.deliveryMethod,
+      deliveryTime: entity.deliveryTime,
+      paymentMethod: entity.paymentMethod,
+      orderStatus: entity.orderStatus,
+      paymentStatus: entity.paymentStatus,
+      deliveryAddress: entity.deliveryAddress,
+      notes: entity.notes,
+      createdAt: entity.createdAt,
+      
+      
+
+
+    );
+  }
+
+  @override
+  String toString() {
+    return 'OrderModel(id: $id, userId: $userId, totalAmount: $totalAmount, orderStatus: $orderStatus)';
   }
 }

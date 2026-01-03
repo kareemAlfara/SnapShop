@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/core/utils/app_images.dart';
 import 'package:shop_app/core/utils/components.dart';
 import 'package:shop_app/feature/mainview/domain/entities/cartEntity.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/Cartcubit/cart_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/favoriteIcon.dart';
 import 'package:shop_app/feature/mainview/presentation/widgets/quantityBottomSheet.dart';
-import 'package:svg_flutter/svg.dart';
 
 class cartBody extends StatelessWidget {
   const cartBody({super.key, required this.cart});
@@ -31,7 +29,7 @@ class cartBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: screensize(context).width * 0.5,
+                  width: screensize(context).width * 0.4,
                   child: defulttext(
                     textAlign: TextAlign.start,
                     maxLines: 2,

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shop_app/core/services/Shared_preferences.dart';
 import 'package:shop_app/core/utils/components.dart';
-import 'package:shop_app/feature/auth/data/repository/repo_impl.dart';
 import 'package:shop_app/feature/auth/domain/entities/userEntity.dart';
-import 'package:shop_app/feature/auth/presentation/cubit/signin_cubit/signin_cubit.dart';
+import 'package:shop_app/feature/auth/presentation/cubit/auth_cubit.dart';
 import 'package:shop_app/feature/auth/presentation/pages/SigninView.dart';
+import 'package:shop_app/feature/checkout/presentation/cubit/order_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/cubit/Cartcubit/cart_cubit.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/RecentlyViewed.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/Wishlist.dart';
-import 'package:shop_app/feature/mainview/presentation/pages/address.dart';
+import 'package:shop_app/feature/mainview/presentation/pages/allOrders.dart';
 import 'package:shop_app/feature/mainview/presentation/pages/privacyPage.dart';
 import 'package:shop_app/feature/profile/presentation/pages/updateprofile.dart';
 import 'package:shop_app/main.dart';
@@ -22,14 +22,14 @@ class profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: defaultAppBar(context: context, title: "Smart Shop"),
+      appBar: defaultAppBar(context: context, title: "Smart Shop", isShowActions: false),
 
-      body: BlocConsumer<SigninCubit, SigninState>(
+      body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           // TODO: implement listener
         },
         builder: (context, state) {
-          var cubit = SigninCubit.get(context);
+          var cubit = AuthCubit.get(context);
 
           return SingleChildScrollView(
             child: Padding(
@@ -38,8 +38,8 @@ class profile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 18),
-                  FutureBuilder<userentity?>(
-                    future: cubit.getCurrentUserFromPrefs(),
+                  FutureBuilder<UserEntity?>(
+                    future: cubit.getCurrentUser(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData || snapshot.data == null) {
                         return const Text(
@@ -88,7 +88,7 @@ class profile extends StatelessWidget {
                                       widget: UpdateProfile(user: user),
                                     );
 
-                                    cubit.refreshUser(); // ✅ بعد الرجوع
+                                  // ✅ بعد الرجوع
                                   },
                                   icon: Icon(Icons.edit),
                                 ),
@@ -106,15 +106,46 @@ class profile extends StatelessWidget {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 22),
-                  GestureDetector(
-                    onTap: () {
-                      // navigateTo(context, const OrderScreen());
-                    },
-                    child: generalData(
-                      text: "All Orders",
-                      assetName: "assets/images/bag/order.png",
-                    ),
-                  ),
+                GestureDetector(
+  onTap: () {
+    // التحقق من تسجيل الدخول
+    final userId = Prefs.getString("id");
+    
+    if (userId == null || userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please login to view your orders'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      
+      // اختياري: الانتقال لصفحة تسجيل الدخول
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SigninView(isHuawei: false),
+        ),
+      );
+      return;
+    }
+
+    // الانتقال لصفحة جميع الطلبات
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: context.read<OrderCubit>(),
+          child: const AllOrdersScreen(),
+        ),
+      ),
+    );
+  },
+  child: generalData(
+    text: "All Orders",
+    assetName: "assets/images/bag/order.png",
+  ),
+),
+
                   const SizedBox(height: 22),
                   GestureDetector(
                     onTap: () {
@@ -138,7 +169,7 @@ class profile extends StatelessWidget {
                   const SizedBox(height: 22),
                   GestureDetector(
                     onTap: () {
-                      navigat(context, widget: OrderTrackingPage());
+                      // navigat(context, widget: OrderTrackingScreen(order: ));
                     },
                     child: generalData(
                       text: "Address",
@@ -176,7 +207,7 @@ class profile extends StatelessWidget {
                           onChanged: (value) {
                             themeNotifier.toggleTheme();
                           },
-                          activeColor: Colors.blue,
+                          activeThumbColor: Colors.blue,
                         ),
                       );
                     },
@@ -227,7 +258,7 @@ class profile extends StatelessWidget {
                             final cartCubit = context.read<CartCubit>();
 
                             // 🧹 1. Sign out from Supabase
-                            await SigninCubit.get(context).signOut();
+                            await AuthCubit.get(context).signOut();
 
                             // 🧹 2. Clear local data
                             await Prefs.clear(); // or Prefs.remove('recent_products');
@@ -238,7 +269,9 @@ class profile extends StatelessWidget {
                             // 🧹 4. Navigate to Login (and remove all previous routes)
                             Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
-                                builder: (_) => const SigninView(),
+                                builder: (_) => const SigninView(
+                                      isHuawei: false,  
+                                ),
                               ),
                               (route) => false,
                             );

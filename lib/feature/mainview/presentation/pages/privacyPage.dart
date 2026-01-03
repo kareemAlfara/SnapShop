@@ -500,8 +500,8 @@ class _PrivacyPolicyPageState extends State<PrivacyPolicyPage>
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const SizedBox(width: 12),
+          Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(width: 6),
           defulttext(
             context: context,
             data: text,

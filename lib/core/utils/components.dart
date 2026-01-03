@@ -1,12 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:fruits_hub/core/utils/app_images.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:shop_app/core/utils/app_images.dart';
 import 'package:shop_app/feature/mainview/data/models/categoriesModel.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:svg_flutter/svg.dart';
+import 'package:shop_app/feature/mainview/presentation/pages/NotificationBadge%20.dart';
 
 Size screensize(context) {
   return MediaQuery.of(context).size;
@@ -54,6 +51,7 @@ PreferredSizeWidget? defaultAppBar({
   bool automaticallyImplyLeading = true,
   bool isShowActions = true,
   String Actionicon =   Assets.assetsImagesNotificationSvg,
+  bool isNotification=true, 
   void Function()? ActiononTap,
 }) => AppBar(
   backgroundColor: Theme.of(context).brightness == Brightness.dark
@@ -82,15 +80,17 @@ PreferredSizeWidget? defaultAppBar({
     isShowActions
         ? GestureDetector(
             onTap: ActiononTap,
-            child: SvgPicture.asset(
-              Actionicon,
-              fit: BoxFit.fill,
-              height: 30,
-              width: 30,
-            ),
+              
+            child: NotificationBadge(
+              Actionicon: Actionicon,
+              isNotification: isNotification,
+      onTap: () {
+      
+      },
+    )
           )
         : SizedBox.shrink(),
-    SizedBox(width: 8),
+    SizedBox(width: 18),
   ],
 );
 

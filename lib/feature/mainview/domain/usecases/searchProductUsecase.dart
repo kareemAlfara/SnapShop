@@ -1,4 +1,3 @@
-import 'package:shop_app/feature/auth/domain/repository/repo.dart';
 import 'package:shop_app/feature/mainview/domain/entities/productEntity.dart';
 import 'package:shop_app/feature/mainview/domain/repository/repo.dart';
 

@@ -1,107 +1,207 @@
-import 'dart:async';
-import 'dart:developer';
+// ========================================
+// 📁 lib/feature/auth/data/repository/repo_impl.dart
+// ========================================
 import 'dart:io';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shop_app/core/services/Shared_preferences.dart';
-import 'package:shop_app/core/utils/components.dart';
-import 'package:shop_app/feature/auth/data/auth_local_data_source.dart';
+import 'package:dartz/dartz.dart';
+import 'package:shop_app/core/utils/failures.dart';
 import 'package:shop_app/feature/auth/data/auth_remote_data_source.dart';
-import 'package:shop_app/feature/auth/data/mapping/mapper.dart';
+import 'package:shop_app/feature/auth/data/auth_local_data_source.dart';
 import 'package:shop_app/feature/auth/domain/entities/userEntity.dart';
 import 'package:shop_app/feature/auth/domain/repository/repo.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-class RepoImpl extends Repo {
+class RepoImpl implements Repo {
+  final AuthRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
+
+  RepoImpl({
+    required this.remoteDataSource,
+    required this.localDataSource,
+  });
+
+  // ========================================
+  // ✅ SIGNUP (lowercase - matches interface)
+  // ========================================
   @override
-  Future<userentity> Signup({
+  Future<Either<Failure, UserEntity>> signup({
     required String email,
     required String password,
     required String name,
     required String phone,
-required String image  }) async {
-    final model = await AuthRemoteDataSource().Signup(
-      email: email,
-      password: password,
-      name: name,
-      phone: phone,
-      image: image
-      
+    required String image,
+  }) async {
+    try {
+      final model = await remoteDataSource.Signup(
+        email: email,
+        password: password,
+        name: name,
+        phone: phone,
+        image: image,
+      );
+ await localDataSource.saveUser(model);
+      // Convert UserModel to UserEntity
+      final entity = UserEntity(
+        id: model.id,
+        email: model.email,
+        name: model.name,
+        image: model.image,
+        phone: model.phone,
+        userType: model.userType,
+      );
 
-    );
-    AuthLocalDataSource().saveUser(model);
-    return Mapper.toentity(model);
+      // Save to local storage
+      await localDataSource.saveUser(model);
+
+      return Right(entity);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
   }
 
+  // ========================================
+  // ✅ SIGNIN (lowercase - matches interface)
+  // ========================================
   @override
-  Future<userentity> Signin({
+  Future<Either<Failure, UserEntity>> signin({
     required String email,
     required String password,
   }) async {
-    final model = await AuthRemoteDataSource().Signin(
-      email: email,
-      password: password,
-    );
-    AuthLocalDataSource().saveUser(model);
-    return Mapper.toentity(model);
+    try {
+      final model = await remoteDataSource.Signin(
+        email: email,
+        password: password,
+      );
+ await localDataSource.saveUser(model);
+
+      // Convert UserModel to UserEntity
+      final entity = UserEntity(
+        id: model.id,
+        email: model.email,
+        name: model.name,
+        image: model.image,
+        phone: model.phone,
+        userType: model.userType,
+      );
+
+      // Save to local storage
+      await localDataSource.saveUser(model);
+
+      return Right(entity);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
   }
 
-  Future<userentity> signinWithGoogle() async {
-    final model = await AuthRemoteDataSource().signinWithGoogle();
-    AuthLocalDataSource().saveUser(model);
-    return Mapper.toentity(model);
-  }
-
-  final SupabaseClient _supabase = Supabase.instance.client;
-  final GoogleSignIn googleSignIn = GoogleSignIn(
-    serverClientId:
-        '1038966682534-8f6kpcl2hfkp9o0p3lkb7v86deblaaj8.apps.googleusercontent.com',
-    scopes: ['email', 'profile'],
-  );
-  StreamSubscription<List<Map<String, dynamic>>>? _usersSubscription;
-  Future<void> signout() async {
-    await Future.wait([googleSignIn.signOut(), _supabase.auth.signOut()]);
-    await _usersSubscription?.cancel();
-    _usersSubscription = null;
-
-    await Prefs.setString("id", "");
-    await Prefs.setString("name", "");
-    log('User signed out and preferences cleared');
-    uid = null;
-    await Supabase.instance.client.auth.signOut();
-  }
-  Future<userentity> signinWithFacebook() async {
-    final model = await AuthRemoteDataSource().signinWithFacebook();
-    AuthLocalDataSource().saveUser(model);
-    return Mapper.toentity(model);
-  }
-  Future<userentity?> getCurrentUserFromPrefs() async {
-  final localId = Prefs.getString('id');
-  if (localId.isEmpty) return null;
-
-  final userRow = await Supabase.instance.client
-      .from('users')
-      .select()
-      .eq('uid', localId)
-      .maybeSingle();
-
-  if (userRow == null) return null;
-
-  return userentity(
-    id: userRow['uid'],
-    image: userRow['image'],
-    email: userRow['email'],
-    name: userRow['name'],
-    phone: userRow['phone'],
-  );
-}
+  // ========================================
+  // ✅ GOOGLE SIGN IN
+  // ========================================
   @override
-  Future<String?> uploadImageToSupabase(File file) async {
-  ;
-  final fileName = await AuthRemoteDataSource().uploadImageToSupabase(file);
+  Future<Either<Failure, UserEntity>> signinWithGoogle() async {
+    try {
+      final model = await remoteDataSource.signinWithGoogle();
+ await localDataSource.saveUser(model);
 
-    final String publicUrl =
-        'https://kbshmetpchppzivoynly.supabase.co/storage/v1/object/public/user_images/uploads/$fileName';
+      // Convert UserModel to UserEntity
+      final entity = UserEntity(
+        id: model.id,
+        email: model.email,
+        name: model.name,
+        image: model.image,
+        phone: model.phone,
+        userType: model.userType,
+      );
 
-    return publicUrl;
+      // Save to local storage
+      await localDataSource.saveUser(model);
+
+      return Right(entity);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  // ========================================
+  // ✅ FACEBOOK SIGN IN
+  // ========================================
+  @override
+  Future<Either<Failure, UserEntity>> signinWithFacebook() async {
+    try {
+      final model = await remoteDataSource.signinWithFacebook();
+ await localDataSource.saveUser(model);
+
+      // Convert UserModel to UserEntity
+      final entity = UserEntity(
+        id: model.id,
+        email: model.email,
+        name: model.name,
+        image: model.image,
+        phone: model.phone,
+        userType: model.userType,
+      );
+
+      // Save to local storage
+      await localDataSource.saveUser(model);
+
+      return Right(entity);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  // ========================================
+  // ✅ IMAGE UPLOAD
+  // ========================================
+  @override
+  Future<Either<Failure, String>> uploadImageToSupabase(File file) async {
+    try {
+      final fileName = await remoteDataSource.uploadImageToSupabase(file);
+      if (fileName == null) {
+        return Left(ServerFailure(message: 'Failed to upload image'));
+      }
+      
+      // Return the full URL
+      final fullUrl = 'https://kbshmetpchppzivoynly.supabase.co/storage/v1/object/public/user_images/uploads/$fileName';
+      return Right(fullUrl);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  // ========================================
+  // ✅ SIGN OUT
+  // ========================================
+  @override
+  Future<Either<Failure, void>> signout() async {
+    try {
+      await remoteDataSource.signOut();
+      await localDataSource.clearUser();
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(message: e.toString()));
+    }
+  }
+
+  // ========================================
+  // ✅ GET CURRENT USER FROM PREFS
+  // ========================================
+  @override
+  Future<Either<Failure, UserEntity?>> getCurrentUserFromPrefs() async {
+    try {
+      final model = await localDataSource.getUser();
+      if (model == null) return const Right(null);
+
+      // Convert UserModel to UserEntity
+      final entity = UserEntity(
+        id: model.id,
+        email: model.email,
+        name: model.name,
+        image: model.image,
+        phone: model.phone,
+        userType: model.userType,
+      );
+
+      return Right(entity);
+    } catch (e) {
+      return Left(CacheFailure(message: e.toString()));
+    }
   }
 }
